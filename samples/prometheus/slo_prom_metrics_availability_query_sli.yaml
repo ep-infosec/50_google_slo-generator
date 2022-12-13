@@ -1,0 +1,20 @@
+apiVersion: sre.google.com/v2
+kind: ServiceLevelObjective
+metadata:
+  name: prom-metrics-availability
+  labels:
+    service_name: prom
+    feature_name: metrics
+    slo_name: availability
+spec:
+  description: 99.9% of Prometheus requests return a good HTTP code
+  backend: prometheus
+  method: query_sli
+  exporters:
+  - prometheus
+  service_level_indicator:
+    expression: >
+      sum(rate(prometheus_http_requests_total{handler="/metrics", code=~"2.."}[window]))
+      /
+      sum(rate(prometheus_http_requests_total{handler="/metrics"}[window]))
+  goal: 0.999
